@@ -37,7 +37,7 @@ class CalculatorGUI:
     def on_equal_press(self):
         expression = self.entry.get()
         try:
-            result = str(eval(expression))  # временно, сюда evaluate_expression()
+            result = str(evaluate_expression(expression))
         except Exception:
             result = "Ошибка"
         self.entry.delete(0, END)
