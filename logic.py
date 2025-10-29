@@ -121,7 +121,7 @@ def shunting_yard(tokens: list) -> list:
     precedence = {
         '+': 1, '-': 1,
         '*': 2, '/': 2, '%': 2,
-        '**': 3
+        '**': 3, '^': 3
     }
     
     for token in tokens:
@@ -143,6 +143,7 @@ def shunting_yard(tokens: list) -> list:
         output.append(operators.pop())
     
     return output
+
 
 def evaluate_rpn(tokens: list) -> float:
     """Вычисление выражения в обратной польской записи"""
@@ -171,7 +172,7 @@ def evaluate_rpn(tokens: list) -> float:
                 if b == 0:
                     raise ValueError("Деление на ноль при взятии остатка")
                 stack.append(a % b)
-            elif token == '**':
+            elif token == '**' or token == '^':
                 stack.append(a ** b)
     
     if len(stack) != 1:
