@@ -4,7 +4,7 @@ from frontend import CalculatorGUI
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Калькулятор")
-    root.geometry("500x300")
+    root.geometry("600x350")
 
     app = CalculatorGUI(root)
 
