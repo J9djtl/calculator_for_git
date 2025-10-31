@@ -30,9 +30,7 @@ def evaluate_expression(expression: str) -> float:
 
 def preprocess_expression(expr: str) -> str:
     """Предварительная обработка выражения"""
-    # Замена синонимов операций
-    expr = expr.replace('^', '**')  # Степень в Python синтаксисе
-    
+
     # Добавление умножения там, где оно подразумевается (например: 2sin(30) -> 2*sin(30))
     expr = re.sub(r'(\d)([a-zA-Z\(])', r'\1*\2', expr)
     expr = re.sub(r'(\))(\d)', r'\1*\2', expr)
@@ -121,7 +119,7 @@ def shunting_yard(tokens: list) -> list:
     precedence = {
         '+': 1, '-': 1,
         '*': 2, '/': 2, '%': 2,
-        '**': 3, '^': 3
+        '^': 3
     }
     
     for token in tokens:
@@ -172,7 +170,7 @@ def evaluate_rpn(tokens: list) -> float:
                 if b == 0:
                     raise ValueError("Деление на ноль при взятии остатка")
                 stack.append(a % b)
-            elif token == '**' or token == '^':
+            elif token == '^':
                 stack.append(a ** b)
     
     if len(stack) != 1:
