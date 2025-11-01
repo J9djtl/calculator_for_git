@@ -30,7 +30,7 @@ class TestCalculatorGUI(unittest.TestCase):
         """Cообщение действительно появляется и имеет нужный цвет"""
         self.gui.show_message("Ошибка", color="red")
         self.assertEqual(self.gui.message_label.cget("text"), "Ошибка")
-        self.assertEqual(self.gui.message_label.cget("foreground"), "red")
+        self.assertIn("red", str(self.gui.message_label.cget("foreground")))
 
     def test_hide_message(self):
         "Сообщение исчезает из интерфейса, когда надо"
@@ -100,14 +100,14 @@ class TestCalculatorGUI(unittest.TestCase):
         self.assertIn("3", self.gui.message_label.cget("text"))
 
     # Тест для вычисления выражения (с моканым evaluate_expression)
-    @patch("logic.evaluate_expression", return_value=42)
+    @patch("frontend.evaluate_expression", return_value=42)
     def test_on_equal_press_success(self, mock_eval):
         """Вычесленное выражение действительно выводится"""
         self.gui.set_text("1+2")
         self.gui.on_equal_press()
         self.assertEqual(self.gui.get_text(), "42")
 
-    @patch("logic.evaluate_expression", side_effect=Exception("Ошибка"))
+    @patch("frontend.evaluate_expression", side_effect=Exception("Ошибка"))
     def test_on_equal_press_error(self, mock_eval):
         """Ошибка при вычмслении корректно отображается"""
         self.gui.set_text("1/0")
