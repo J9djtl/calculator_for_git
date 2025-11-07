@@ -45,7 +45,15 @@ def preprocess_expression(expr: str) -> str:
     while '-+' in expr:
         expr = expr.replace('-+', '-')
     # Обработка унарного минуса
-    expr = re.sub(r'(^|[+\-*/^%(\)])-', r'\1u-', expr)
+    if expr.startswith('-'):
+        expr = 'u-' + expr[1:]
+    
+    # Затем обрабатываем минусы после операторов и открывающих скобок
+    operators = ['+', '-', '*', '/', '%', '^', '(']
+    for op in operators:
+        pattern = re.escape(op) + r'\s*-'
+        replacement = op + 'u-'
+        expr = re.sub(pattern, replacement, expr)
     
     return expr
 
@@ -135,7 +143,8 @@ def shunting_yard(tokens: list) -> list:
     precedence = {
         '+': 1, '-': 1,
         '*': 2, '/': 2, '%': 2,
-        '^': 3
+        '^': 3,
+        'u-': 4
     }
 
     for token in tokens:
