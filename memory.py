@@ -10,11 +10,15 @@ class CalculatorMemory:
 
     def store(self, new_value):
         """Запись нового значения в память"""
-        self.__value = new_value
+        self.__value = float(new_value)
 
     def add(self, value):
         """Прибавление значения к значению в памяти"""
-        self.__value += value
+        self.__value += float(value)
+    
+    def subtract(self, value):
+        """Вычитание значения из памяти"""
+        self.__value -= float(value)
 
     def clear(self):
         """Очистка памяти"""
