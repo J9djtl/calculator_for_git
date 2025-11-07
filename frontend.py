@@ -117,24 +117,33 @@ class CalculatorGUI:
 
     def on_memory_store(self):
         """Сохраняет текущее выражение в память"""
-        self.memory.store(self.get_text())
-        value = self.get_text()
-        self.show_message(f"Сохранено: {value}")
+        try:
+            self.memory.store(self.get_text())
+            value = self.get_text()
+            self.show_message(f"Сохранено: {value}")
+        except Exception:
+            self.show_message('Ошибка при сохранении в память')
 
     def on_memory_add(self):
         """Добавляет текущее значение к памяти"""
-        self.memory.add(self.get_text())
-        value = self.get_text()
-        self.show_message(f"Добавлено к памяти: {value}")
+        try:
+            self.memory.add(self.get_text())
+            value = self.get_text()
+            self.show_message(f"Добавлено к памяти: {value}")
+        except Exception:
+            self.show_message('Ошибка при добавлении значения к памяти')
 
     def on_memory_subtract(self):
         """Вычитает текущее значение из памяти"""
-        self.memory.subtract(self.get_text())
-        value = self.get_text()
-        self.show_message(f"Вычтено из памяти: {value}")
+        try:
+            self.memory.subtract(self.get_text())
+            value = self.get_text()
+            self.show_message(f"Вычтено из памяти: {value}")
+        except Exception:
+            self.show_message('Ошибка при вычитании значения из памяти')
 
     def get_button_type(self, char, index):
-        # Память 
+        # Память
         if char in {'MC', 'MR', 'MS', 'M+', 'M−', 'ANS', 'AC'}:
             return 'memory'
         # Расширенные операции (последние 2 колонки)
