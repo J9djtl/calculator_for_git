@@ -113,7 +113,7 @@ class CalculatorGUI:
     def on_memory_recall(self):
         """Извлекает значение из памяти и отображает его"""
         value = self.memory.get()
-        self.show_message(value)
+        self.append_text(value)
 
     def on_memory_store(self):
         """Сохраняет текущее выражение в память"""
