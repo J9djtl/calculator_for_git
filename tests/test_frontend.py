@@ -1,14 +1,17 @@
 import unittest
 import tkinter as tk
 from frontend import CalculatorGUI
+from memory import CalculatorMemory
+
 from unittest.mock import patch
 
 class TestCalculatorGUI(unittest.TestCase):
-    # фиктсуры
+    # фикстуры
     def setUp(self):
         self.root = tk.Tk()
+        self.memory = CalculatorMemory()
         self.root.withdraw()  # скрываем окно, чтобы не мешало тестам
-        self.gui = CalculatorGUI(self.root)
+        self.gui = CalculatorGUI(self.root, self.memory)
 
     def tearDown(self):
         self.root.destroy()
@@ -58,7 +61,7 @@ class TestCalculatorGUI(unittest.TestCase):
         self.assertEqual(self.gui.get_text(), "12")
 
     def test_on_all_clear(self):
-        """Проверка полной очистки интерфейса.Подготовка к расширению логики ( сброс памяти)."""
+        """Проверка полной очистки интерфейса. Подготовка к расширению логики ( сброс памяти)."""
         self.gui.set_text("456")
         self.gui.on_all_clear()
         self.assertEqual(self.gui.get_text(), "")
@@ -75,26 +78,33 @@ class TestCalculatorGUI(unittest.TestCase):
         self.gui.on_insert_special("10^(")
         self.assertEqual(self.gui.get_text(), "10^(")
 
-    # Тесты памяти (заглушки)
+    # Тесты памяти (на уровне фронтенда)
     def test_on_memory_clear(self):
+        """Проверка очистка памяти"""
         self.gui.on_memory_clear()
         self.assertEqual(self.gui.message_label.cget("text"), "Память очищена")
 
     def test_on_memory_recall(self):
+        """Проверка извлечения значения из памяти"""
+        self.gui.set_text("15")
+        self.gui.on_memory_store()
         self.gui.on_memory_recall()
-        self.assertEqual(self.gui.message_label.cget("text"), "MEM_VALUE")
+        self.assertIn("15", self.gui.entry.get("1.0", tk.END))
 
     def test_on_memory_store(self):
+        """Проверка сохранения текущего значения в память"""
         self.gui.set_text("123")
         self.gui.on_memory_store()
         self.assertIn("123", self.gui.message_label.cget("text"))
 
     def test_on_memory_add(self):
+        """Проверка добавления текущего значения к памяти"""
         self.gui.set_text("5")
         self.gui.on_memory_add()
         self.assertIn("5", self.gui.message_label.cget("text"))
 
     def test_on_memory_subtract(self):
+        """Проверка вычитания текущего значения из памяти"""
         self.gui.set_text("3")
         self.gui.on_memory_subtract()
         self.assertIn("3", self.gui.message_label.cget("text"))
