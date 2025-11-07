@@ -31,13 +31,21 @@ def evaluate_expression(expression: str) -> float:
 def preprocess_expression(expr: str) -> str:
     """Предварительная обработка выражения"""
 
-    # Добавление умножения там, где оно подразумевается (например: 2sin(30) -> 2*sin(30))
+    # Добавление умножения там, где оно подразумевается (например:2sin(30)->2*sin(30))
     expr = re.sub(r'(\d)([a-zA-Z\(])', r'\1*\2', expr)
     expr = re.sub(r'(\))(\d)', r'\1*\2', expr)
     expr = re.sub(r'(\))(\()', r'\1*\2', expr)
     
+    while '--' in expr:
+        expr = expr.replace('--', '+')
+    while '++' in expr:
+        expr = expr.replace('++', '+')
+    while '+-' in expr:
+        expr = expr.replace('+-', '-')
+    while '-+' in expr:
+        expr = expr.replace('-+', '-')
     # Обработка унарного минуса
-    expr = re.sub(r'(?<=[+\-*/^(])\-', 'u-', expr)
+    expr = re.sub(r'(^|[+\-*/^%(\)])-', r'\1u-', expr)
     
     return expr
 
@@ -53,6 +61,9 @@ def process_functions_and_parentheses(expr: str) -> str:
         func_name = match.group(1) or ''
         inner_expr = match.group(2)
         
+        # предварительная обработка внутри скобок
+        inner_expr = preprocess_expression(inner_expr)
+
         # Вычисляем выражение внутри скобок
         inner_result = calculate_expression(inner_expr)
         
@@ -60,8 +71,13 @@ def process_functions_and_parentheses(expr: str) -> str:
         if func_name:
             inner_result = apply_function(func_name, inner_result)
         
+        if inner_result < 0:
+            result_str = 'u-' + str(abs(inner_result))
+        else:
+            result_str = str(inner_result)
+
         # Заменяем выражение в скобках на результат
-        expr = expr.replace(match.group(0), str(inner_result))
+        expr = expr.replace(match.group(0), result_str, 1)
     
     return expr
 
@@ -71,9 +87,11 @@ def apply_function(func_name: str, value: float) -> float:
     func_name = func_name.lower()
     
     if func_name == 'sin':
-        return math.sin(math.radians(value))  # Работаем с градусами
+        result = math.sin(math.radians(value))  # Работаем с градусами
+        return 0.0 if abs(result) < 1e-10 else result
     elif func_name == 'cos':
-        return math.cos(math.radians(value))
+        result = math.cos(math.radians(value))
+        return 0.0 if abs(result) < 1e-10 else result
     elif func_name == 'sqrt':
         if value < 0:
             raise ValueError("Квадратный корень из отрицательного числа")
@@ -90,8 +108,6 @@ def apply_function(func_name: str, value: float) -> float:
 
 def calculate_expression(expr: str) -> float:
     """Вычисление базового арифметического выражения"""
-    # Обработка унарных плюсов и минусов
-    expr = expr.replace('u-', '-')
     
     # Токенизация выражения
     tokens = tokenize(expr)
@@ -106,7 +122,7 @@ def calculate_expression(expr: str) -> float:
 def tokenize(expr: str) -> list:
     """Разбиение выражения на токены"""
     # Регулярное выражение для токенизации чисел, операторов и функций
-    token_pattern = r'\d+\.?\d*|[a-zA-Z]+|[+\-*/%^()]'
+    token_pattern = r'\d+\.?\d*|u-|[a-zA-Z]+|[+\-*/%^()]'
     tokens = re.findall(token_pattern, expr)
     return tokens
 
@@ -121,12 +137,16 @@ def shunting_yard(tokens: list) -> list:
         '*': 2, '/': 2, '%': 2,
         '^': 3
     }
-    
+
     for token in tokens:
         if re.match(r'\d+\.?\d*', token):  # Число
             output.append(float(token))
+        elif token == 'u-':
+            # Унарный минус — всегда идёт в стек с высоким приоритетом
+            operators.append(token)
         elif token in precedence:  # Оператор
-            while (operators and operators[-1] in precedence and
+            while (operators and
+                   operators[-1] in precedence and
                    precedence[operators[-1]] >= precedence[token]):
                 output.append(operators.pop())
             operators.append(token)
@@ -150,12 +170,16 @@ def evaluate_rpn(tokens: list) -> float:
     for token in tokens:
         if isinstance(token, float):  # Число
             stack.append(token)
+        elif token == 'u-':
+            if not stack:
+                raise ValueError("Унарный минус без операнда")
+            a = stack.pop()
+            stack.append(-a)
         else:  # Оператор
             if len(stack) < 2:
                 raise ValueError("Недостаточно операндов для операции")
             b = stack.pop()
             a = stack.pop()
-            
             if token == '+':
                 stack.append(a + b)
             elif token == '-':
