@@ -3,10 +3,10 @@ from tkinter import ttk
 from logic import evaluate_expression
 
 class CalculatorGUI:
-    def __init__(self, root):
+    def __init__(self, root, memory):
         self.root = root
         self.root.iconbitmap('assets/calc.ico')  # для .ico на Windows
-
+        self.memory = memory
 
         self.frame_top = ttk.Frame(root)
         self.frame_top.pack(pady=10)
@@ -106,45 +106,30 @@ class CalculatorGUI:
         self.append_text(pattern)
 
     def on_memory_clear(self):
-        """Очищает значение памяти.
-
-        TODO: Заменить на вызов backend-функции, которая сбрасывает память.
-        Например: memory.clear()
-        """
+        """Очищает значение памяти"""
+        self.memory.clear()
         self.show_message("Память очищена")
 
     def on_memory_recall(self):
-        """Извлекает значение из памяти и отображает его.
-
-        TODO: Заменить на вызов backend-функции, которая возвращает сохранённое значение.
-        Например: value = memory.get()
-        """
-        self.show_message("MEM_VALUE")  # ← заменить на реальное значение
+        """Извлекает значение из памяти и отображает его"""
+        value = self.memory.get()
+        self.append_text(value)
 
     def on_memory_store(self):
-        """Сохраняет текущее выражение в память.
-
-        TODO: Заменить на вызов backend-функции, которая сохраняет значение.
-        Например: memory.store(self.get_text())
-        """
+        """Сохраняет текущее выражение в память"""
+        self.memory.store(self.get_text())
         value = self.get_text()
         self.show_message(f"Сохранено: {value}")
 
     def on_memory_add(self):
-        """Добавляет текущее значение к памяти.
-
-        TODO: Заменить на вызов backend-функции, которая прибавляет значение.
-        Например: memory.add(self.get_text())
-        """
+        """Добавляет текущее значение к памяти"""
+        self.memory.add(self.get_text())
         value = self.get_text()
         self.show_message(f"Добавлено к памяти: {value}")
 
     def on_memory_subtract(self):
-        """Вычитает текущее значение из памяти.
-
-        TODO: Заменить на вызов backend-функции, которая вычитает значение.
-        Например: memory.subtract(self.get_text())
-        """
+        """Вычитает текущее значение из памяти"""
+        self.memory.subtract(self.get_text())
         value = self.get_text()
         self.show_message(f"Вычтено из памяти: {value}")
 
@@ -183,9 +168,7 @@ class CalculatorGUI:
                             for f in ['sqrt', 'sin', 'cos', 'floor', 'ceil']}
 
         if char in memory_commands:
-            # TODO: Заменить заглушку на реальную команду:
-            # return memory_commands[char]
-            return self.on_memory_stub
+            return memory_commands[char]
         elif char in special_commands:
             return special_commands[char]
         elif char in function_commands:
