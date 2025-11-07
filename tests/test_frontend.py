@@ -91,23 +91,41 @@ class TestCalculatorGUI(unittest.TestCase):
         self.gui.on_memory_recall()
         self.assertIn("15", self.gui.entry.get("1.0", tk.END))
 
-    def test_on_memory_store(self):
-        """Проверка сохранения текущего значения в память"""
+    def test_on_memory_store_success(self):
+        """Проверка успешного сохранения текущего значения в память"""
         self.gui.set_text("123")
         self.gui.on_memory_store()
         self.assertIn("123", self.gui.message_label.cget("text"))
 
-    def test_on_memory_add(self):
-        """Проверка добавления текущего значения к памяти"""
+    def test_on_memory_store_error(self):
+        """Проверка ошибки сохранения текущего значения в память"""
+        self.gui.set_text("123(")
+        self.gui.on_memory_store()
+        self.assertIn("Ошибка при сохранении", self.gui.message_label.cget("text"))
+
+    def test_on_memory_add_success(self):
+        """Проверка успешного добавления текущего значения к памяти"""
         self.gui.set_text("5")
         self.gui.on_memory_add()
         self.assertIn("5", self.gui.message_label.cget("text"))
 
-    def test_on_memory_subtract(self):
-        """Проверка вычитания текущего значения из памяти"""
+    def test_on_memory_add_error(self):
+        """Проверка ошибки добавления текущего значения к памяти"""
+        self.gui.set_text("5(")
+        self.gui.on_memory_add()
+        self.assertIn("Ошибка при добавлении", self.gui.message_label.cget("text"))
+
+    def test_on_memory_subtract_success(self):
+        """Проверка успешного вычитания текущего значения из памяти"""
         self.gui.set_text("3")
         self.gui.on_memory_subtract()
         self.assertIn("3", self.gui.message_label.cget("text"))
+
+    def test_on_memory_subtract_error(self):
+        """Проверка ошибки вычитания текущего значения из памяти"""
+        self.gui.set_text("3(")
+        self.gui.on_memory_subtract()
+        self.assertIn("Ошибка при вычитании", self.gui.message_label.cget("text"))
 
     # Тест для вычисления выражения (с моканым evaluate_expression)
     @patch("frontend.evaluate_expression", return_value=42)
