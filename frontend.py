@@ -1,11 +1,14 @@
 from tkinter import *
+
 from tkinter import ttk
 from logic import evaluate_expression
 
 class CalculatorGUI:
     def __init__(self, root, memory):
         self.root = root
-        self.root.iconbitmap('assets/calc.ico')  # для .ico на Windows
+        # self.root.iconbitmap('assets/calc.ico')  # для .ico на Windows
+        icon_image = PhotoImage(file='assets/calc.png')
+        root.iconphoto(True, icon_image) 
         self.memory = memory
 
         self.frame_top = ttk.Frame(root)
